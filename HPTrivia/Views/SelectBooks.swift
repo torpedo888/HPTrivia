@@ -13,6 +13,16 @@ struct SelectBooks: View {
 
     @State private var showTempAlert = false
 
+    var activeBooks: Bool {
+        for book in game.bookQuestions.books {
+            if book.status == .active {
+                return true
+            }
+        }
+
+        return false
+    }
+
     var body: some View {
         ZStack {
             Image(.parchment)
@@ -30,59 +40,17 @@ struct SelectBooks: View {
                     LazyVGrid(columns: [GridItem(), GridItem()]){
                         ForEach(game.bookQuestions.books) {book in
                             if book.status == .active {
-                                ZStack(alignment: .bottomTrailing) {
-                                    Image(book.image)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .shadow(radius: 7)
-
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.largeTitle)
-                                        .imageScale(.large)
-                                        .foregroundStyle(.green)
-                                        .shadow(radius: 1)
-                                        .padding(3)                                 
-                                }
+                                ActiveBook(book: book)
                                 .onTapGesture {
                                     game.bookQuestions.changeStatus(of: book.id, to: .inactive)
                                 }
                             } else if book.status == .inactive {
-                                ZStack(alignment: .bottomTrailing) {
-                                    Image(book.image)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .shadow(radius: 7)
-                                        .overlay{
-                                            Rectangle().opacity(0.33)
-                                        }
-
-                                    Image(systemName: "circle")
-                                        .font(.largeTitle)
-                                        .imageScale(.large)
-                                        .foregroundStyle(.green.opacity(0.5))
-                                        .shadow(radius: 1)
-                                        .padding(3)
-                                }
+                                InactiveBook(book: book)
                                 .onTapGesture {
                                     game.bookQuestions.changeStatus(of: book.id, to: .active)
                                 }
                             } else {
-                                ZStack {
-                                    Image(book.image)
-                                        .resizable()
-                                        .scaledToFit()
-                                        .shadow(radius: 7)
-                                        .overlay{
-                                            Rectangle().opacity(0.75)
-                                        }
-
-                                    Image(systemName: "lock.fill")
-                                        .font(.largeTitle)
-                                        .imageScale(.large)
-                                        .shadow(color: .white, radius: 2)
-                                        .padding(3)
-
-                                }
+                                LockedBook(book: book)
                                 .onTapGesture {
                                     showTempAlert.toggle()
 
@@ -93,9 +61,14 @@ struct SelectBooks: View {
                     }
                     .padding()
                 }
+                .interactiveDismissDisabled()
                 .alert("You just purchased a new book!", isPresented: $showTempAlert) {
                 }
 
+                if !activeBooks {
+                    Text("You must select at least 1 book.")
+                        .multilineTextAlignment(.center)
+                }
 
                 Button("Done") {
                     dismiss()
@@ -104,10 +77,11 @@ struct SelectBooks: View {
                 .padding()
                 .buttonStyle(.borderedProminent)
                 .tint(.brown.mix(with:.black, by: 0.2))
-
+                .disabled(!activeBooks)
             }
             .foregroundStyle(.black)
         }
+        .interactiveDismissDisabled(!activeBooks)
     }
 }
 
