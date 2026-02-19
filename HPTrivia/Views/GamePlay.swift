@@ -16,6 +16,7 @@ struct GamePlay: View {
     @State private var sfxPlayer: AVAudioPlayer!
 
     @State private var animateViewsIn = false
+    @State private var revealHint = false
 
     var body: some View {
         GeometryReader { geo in
@@ -61,6 +62,60 @@ struct GamePlay: View {
                     .animation(.easeInOut(duration: 2), value: animateViewsIn)
 
                     // MARK: Hints
+                    HStack {
+                        VStack {
+                            if animateViewsIn {
+                                Image(systemName: "questionmark.app.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 100)
+                                    .foregroundStyle(.cyan)
+                                    .padding()
+                                    .transition(.offset(x: -geo.size.width/2))
+                                    .phaseAnimator([false, true]) { content, phase in
+                                        content.rotationEffect(.degrees(phase ? -13 : -17))
+                                    } animation: { _ in
+                                            .easeInOut(duration: 0.7)
+                                    }
+                                    .onTapGesture {
+                                        withAnimation(.easeInOut(duration: 1)) {
+                                            revealHint = true
+                                        }
+
+                                        playFlipSound()
+                                        game.questionScore -= 1
+                                    }
+                                    .rotation3DEffect(.degrees(revealHint ? 1440 :0),
+                                                      axis: (x: 0, y: 1, z: 0))
+                                    .scaleEffect(revealHint ? 5 : 1)
+                                    .offset(x: revealHint ? geo.size.width/2.5 : 0)
+                                    .opacity(revealHint ? 0 : 1)
+                                    .overlay {
+                                        Text(game.currentQuestion.hint)
+                                            .padding(.leading, 20)
+                                            .minimumScaleFactor(0.5)
+                                            .multilineTextAlignment(.center)
+                                            .opacity(revealHint ? 1 : 0)
+                                            .scaleEffect(revealHint ? 1.33 : 1)
+
+                                    }
+                            }
+
+                        }
+                        .animation(.easeInOut(duration: 1.5).delay(2), value: animateViewsIn)
+
+
+                        Spacer()
+
+                        Image(systemName: "book")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 100)
+                            .rotationEffect(Angle(degrees: 15))
+                        Spacer()
+                    }
+                    .padding(.horizontal, 50)
+                    .padding(.vertical, 50)
 
                     // MARK: Answers
 
@@ -85,7 +140,7 @@ struct GamePlay: View {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-                self.playMusic()
+              //  self.playMusic()
             })
         }
     }
