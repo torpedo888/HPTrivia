@@ -37,11 +37,33 @@ class Game {
     }
 
     func newQuestion() {
+        if answeredQuestions.count == activeQuestions.count {
+            answeredQuestions = []
+        }
 
+        currentQuestion = activeQuestions.randomElement()!
+
+        while(answeredQuestions.contains(currentQuestion.id)) {
+            currentQuestion = activeQuestions.randomElement()!
+        }
+
+        answers = []
+
+        answers.append(currentQuestion.answer)
+
+        for answer in currentQuestion.wrong {
+            answers.append(answer)
+        }
+
+        answers.shuffle()
+
+        questionScore = 5
     }
 
     func correct() {
+        answeredQuestions.append(currentQuestion.id)
 
+        gameScore += questionScore
     }
 
     func endGame() {
