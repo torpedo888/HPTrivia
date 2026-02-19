@@ -167,13 +167,22 @@ struct ContentView: View {
         .sheet(isPresented: $showInstructions){
             Instructions()
         }
+        .fullScreenCover(isPresented: $playGame) {
+            GamePlay()
+                .onAppear {
+                    audioPlayer.setVolume(0, fadeDuration: 2)
+                }
+                .onDisappear {
+                    audioPlayer.setVolume(1, fadeDuration: 2)
+                }
+        }
     }
 
     private func playAudio() {
         let sound = Bundle.main.path(forResource: "magic-in-the-air", ofType: "mp3")
         audioPlayer = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: sound!))
         audioPlayer.numberOfLoops = -1
-        audioPlayer.play()
+      //  audioPlayer.play()
     }
 }
 

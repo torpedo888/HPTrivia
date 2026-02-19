@@ -17,7 +17,7 @@ class Game {
 
     var activeQuestions: [Question] = []
     var answeredQuestions: [Int] = []
-    var currentQuestion = try! JSONDecoder().decode(Question.self, from:
+    var currentQuestion = try! JSONDecoder().decode([Question].self, from:
             Data(
                 contentsOf: Bundle.main.url(
                     forResource: "trivia",
@@ -26,7 +26,7 @@ class Game {
 
     func StartGame() {
        for book in bookQuestions.books {
-           if book.status == "active" {
+           if book.status == .active {
                for question in book.questions {
                    activeQuestions.append(question)
                }
