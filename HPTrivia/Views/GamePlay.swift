@@ -15,6 +15,8 @@ struct GamePlay: View {
     @State private var musicPlayer: AVAudioPlayer!
     @State private var sfxPlayer: AVAudioPlayer!
 
+    @State private var animateViewsIn = false
+
     var body: some View {
         GeometryReader { geo in
             ZStack {
@@ -29,26 +31,60 @@ struct GamePlay: View {
 
                 VStack {
                     // MARK: Controls
+                    HStack {
+                        //Button
+                        Button("End Game") {
+                            game.endGame()
+                            dismiss()
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .tint(.red.opacity(0.5))
+
+                        //Spacer
+                        Spacer()
+
+                        //Text
+                        Text("Score: \(game.gameScore)")
+                    }
+                    .padding()
+                    .padding(.vertical, 30)
 
                     // MARK: Question
+                    VStack{
+                        if animateViewsIn {
+                            Text(game.currentQuestion.question)
+                                .font(.custom("PartyLetPlain", size: 50))
+                                .multilineTextAlignment(.center)
+                                .padding()
+                        }
+                    }
+                    .animation(.easeInOut(duration: 2), value: animateViewsIn)
 
                     // MARK: Hints
 
                     // MARK: Answers
+
+                    Spacer()
                 }
                 .frame(width: geo.size.width, height:
                         geo.size.height)
+               // .padding(.top : 20)
 
                 // MARK: Celebration
             }
             .frame(width: geo.size.width, height:
                     geo.size.height)
+            .foregroundStyle(.white)
         }
         .ignoresSafeArea()
         .onAppear {
             game.StartGame()
 
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                animateViewsIn = true
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
                 self.playMusic()
             })
         }
