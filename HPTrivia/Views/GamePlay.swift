@@ -11,6 +11,7 @@ import AVKit
 struct GamePlay: View {
     @Environment(Game.self) private var game
     @Environment(\.dismiss) private var dismiss
+    @Namespace private var namespace
 
     @State private var musicPlayer: AVAudioPlayer!
     @State private var sfxPlayer: AVAudioPlayer!
@@ -19,6 +20,7 @@ struct GamePlay: View {
     @State private var revealHint = false
     @State private var revealBook = false
     @State private var tappedCorrectAnswer = false
+    @State private var wrongAnswersTapped: [String] = []
 
     var body: some View {
         GeometryReader { geo in
@@ -165,32 +167,58 @@ struct GamePlay: View {
                             if answer == game.currentQuestion.answer {
                                 VStack {
                                     if animateViewsIn {
-                                        Button {
-                                            tappedCorrectAnswer = true
+                                        if !tappedCorrectAnswer {
+                                            Button {
+                                                withAnimation(
+                                                    .easeOut(duration: 1)
+                                                )
+                                                {
+                                                    tappedCorrectAnswer = true
+                                                }
 
-                                            playCorrectSound()
-
-                                            game.correct()
-                                        } label: {
-                                            Text(answer)
-                                                .minimumScaleFactor(0.5)
-                                                .multilineTextAlignment(.center)
-                                                .padding(10)
-                                                .frame(width: geo.size.width/2, height: 80)
-                                                .background(.green.opacity(0.5))
-                                                .clipShape(.rect(cornerRadius: 25))
+                                                playCorrectSound()
+                                                
+                                                game.correct()
+                                            } label: {
+                                                Text(answer)
+                                                    .minimumScaleFactor(0.5)
+                                                    .multilineTextAlignment(.center)
+                                                    .padding(10)
+                                                    .frame(width: geo.size.width/2, height: 80)
+                                                    .background(.green.opacity(0.5))
+                                                    .clipShape(.rect(cornerRadius: 25))
+                                                    .matchedGeometryEffect(id: 1, in: namespace)
+                                            }
+                                            .transition(
+                                                .asymmetric(
+                                                    insertion: .scale,
+                                                    removal:
+                                                            .scale(scale: 15)
+                                                            .combined(
+                                                                with: .opacity
+                                                            )
+                                                )
+                                            )
+//                                            .transition(
+//                                                .asymmetric(
+//                                                    insertion: .scale,
+//                                                    removal: AnyTransition.scale(scale: 10)
+//                                                        .combined(with: .opacity.animation(.easeOut(duration: 1)))
+//                                                )
+//                                            )
                                         }
-                                        .transition(.scale)
                                     }
                                 }
                                 .animation(.easeOut(duration: 1).delay(1.5),
                                                value: animateViewsIn
                                 )
-                            } else {
+                            } else { //wrong answer
                                 VStack {
                                     if animateViewsIn {
                                         Button {
-                                            tappedCorrectAnswer = true
+                                           // withAnimation(.easeIn(duration: 1)) {
+                                                wrongAnswersTapped.append(answer)
+                                          //  }
 
                                             playWrongSound()
 
@@ -200,11 +228,22 @@ struct GamePlay: View {
                                                 .minimumScaleFactor(0.5)
                                                 .multilineTextAlignment(.center)
                                                 .padding(10)
-                                                .frame(width: geo.size.width/2, height: 80)
-                                                .background(.green.opacity(0.5))
+                                                .frame(width: geo.size.width/2.15,
+                                                       height: 80)
+                                                .background(
+                                                    wrongAnswersTapped
+                                                        .contains(answer) ?
+                                                            .red.opacity(0.5) :
+                                                            .green.opacity(0.5)
+                                                )
                                                 .clipShape(.rect(cornerRadius: 25))
+                                                .scaleEffect(wrongAnswersTapped.contains(where: { $0 == answer }) ? 0.8 : 1)
                                         }
                                         .transition(.scale)
+                                        .sensoryFeedback(
+                                            .error,
+                                            trigger: wrongAnswersTapped)
+                                        .disabled(wrongAnswersTapped.contains(answer)) //they can't click twice
                                     }
                                 }
                                 .animation(.easeOut(duration: 1).delay(1.5),
@@ -218,9 +257,21 @@ struct GamePlay: View {
                 }
                 .frame(width: geo.size.width, height:
                         geo.size.height)
-               // .padding(.top : 20)
 
                 // MARK: Celebration
+                VStack {
+                    if tappedCorrectAnswer {
+                        Text(game.currentQuestion.answer)
+                            .minimumScaleFactor(0.5)
+                            .multilineTextAlignment(.center)
+                            .padding(10)
+                            .frame(width: geo.size.width/2, height: 80)
+                            .background(.green.opacity(0.5))
+                            .clipShape(.rect(cornerRadius: 25))
+                            .matchedGeometryEffect(id: 1, in: namespace)
+                    }
+                }
+
             }
             .frame(width: geo.size.width, height:
                     geo.size.height)
