@@ -18,6 +18,7 @@ struct GamePlay: View {
     @State private var animateViewsIn = false
     @State private var revealHint = false
     @State private var revealBook = false
+    @State private var tappedCorrectAnswer = false
 
     var body: some View {
         GeometryReader { geo in
@@ -140,12 +141,6 @@ struct GamePlay: View {
                                     .offset(x: revealBook ? geo.size.width/2.5 : 0)
                                     .opacity(revealBook ? 0 : 1)
                                     .overlay {
-//                                        Text(game.currentQuestion.hint)
-//                                            .padding(.leading, 20)
-//                                            .minimumScaleFactor(0.5)
-//                                            .multilineTextAlignment(.center)
-//                                            .opacity(revealBook ? 1 : 0)
-//                                            .scaleEffect(revealBook ? 1.33 : 1)
                                         Image("hp\(game.currentQuestion.book)")
                                             .resizable()
                                             .scaledToFit()
@@ -164,6 +159,60 @@ struct GamePlay: View {
                     .padding(.vertical, 50)
 
                     // MARK: Answers
+                    LazyVGrid(columns: [GridItem(), GridItem()]){
+                        ForEach(game.answers, id: \.self) { answer in
+                            //correct answer button
+                            if answer == game.currentQuestion.answer {
+                                VStack {
+                                    if animateViewsIn {
+                                        Button {
+                                            tappedCorrectAnswer = true
+
+                                            playCorrectSound()
+
+                                            game.correct()
+                                        } label: {
+                                            Text(answer)
+                                                .minimumScaleFactor(0.5)
+                                                .multilineTextAlignment(.center)
+                                                .padding(10)
+                                                .frame(width: geo.size.width/2, height: 80)
+                                                .background(.green.opacity(0.5))
+                                                .clipShape(.rect(cornerRadius: 25))
+                                        }
+                                        .transition(.scale)
+                                    }
+                                }
+                                .animation(.easeOut(duration: 1).delay(1.5),
+                                               value: animateViewsIn
+                                )
+                            } else {
+                                VStack {
+                                    if animateViewsIn {
+                                        Button {
+                                            tappedCorrectAnswer = true
+
+                                            playWrongSound()
+
+                                            game.gameScore -= 1
+                                        } label: {
+                                            Text(answer)
+                                                .minimumScaleFactor(0.5)
+                                                .multilineTextAlignment(.center)
+                                                .padding(10)
+                                                .frame(width: geo.size.width/2, height: 80)
+                                                .background(.green.opacity(0.5))
+                                                .clipShape(.rect(cornerRadius: 25))
+                                        }
+                                        .transition(.scale)
+                                    }
+                                }
+                                .animation(.easeOut(duration: 1).delay(1.5),
+                                               value: animateViewsIn
+                                )
+                            }
+                        }
+                    }
 
                     Spacer()
                 }
