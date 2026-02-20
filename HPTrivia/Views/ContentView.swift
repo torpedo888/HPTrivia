@@ -143,7 +143,7 @@ struct ContentView: View {
         .ignoresSafeArea()
         .onAppear {
             animateViewsIn = true
-          //  playAudio()
+            playAudio()
         }
         .sheet(isPresented: $showInstructions){
             Instructions()
