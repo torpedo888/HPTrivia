@@ -315,12 +315,25 @@ struct GamePlay: View {
                     VStack {
                         if tappedCorrectAnswer {
                             Button("Next Level >") {
+                                animateViewsIn = false
+                                revealHint = false
+                                revealBook = false
+                                tappedCorrectAnswer = false
+                                wrongAnswersTapped = []
+                                movePointsToScore = false
+
+                                game.newQuestion()
+
+                                //Kesleltetes az animacio vegrehajtasara
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    animateViewsIn = true
+                                }
 
                             }
                             .font(.largeTitle)
                             .buttonStyle(.borderedProminent)
                             .tint(.blue.opacity(0.5))
-                            .transition(.offset(y: geo.size.height/2))
+                          //  .transition(.offset(y: geo.size.height/2))
                             .phaseAnimator([false, true]) { content, phase in
                                 content
                                     .scaleEffect(phase ? 1.2 : 1)
@@ -348,7 +361,7 @@ struct GamePlay: View {
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {
-                self.playMusic()
+               // self.playMusic()
             })
         }
     }
