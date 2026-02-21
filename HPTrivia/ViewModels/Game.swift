@@ -24,6 +24,13 @@ class Game {
                     withExtension: "json")!))[0]
     var answers: [String] = []
 
+    let savePath = FileManager.default.urls(for: .documentDirectory, in:
+            .userDomainMask).first!.appending(path: "RecentScores")
+
+    init() {
+        loadScores()
+    }
+
     func StartGame() {
        for book in bookQuestions.books {
            if book.status == .active {
@@ -76,6 +83,24 @@ class Game {
         gameScore = 0
         activeQuestions = []
         answeredQuestions = []
+    }
+
+    func saveScores() {
+        do {
+            let jsonData = try JSONEncoder().encode(recentScores)
+            try jsonData.write(to: savePath)
+        } catch {
+            print("Failed to save scores: \(error)")
+        }
+    }
+
+    func loadScores() {
+        do {
+            let jsonData = try Data(contentsOf: savePath)
+            recentScores = try JSONDecoder().decode([Int].self, from: jsonData)
+        } catch {
+            print("Failed to load scores: \(error)")
+        }
     }
 
 }
