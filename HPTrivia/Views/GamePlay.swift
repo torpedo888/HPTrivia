@@ -63,9 +63,13 @@ struct GamePlay: View {
                                     .font(.custom("PartyLetPlain", size: 50))
                                     .multilineTextAlignment(.center)
                                     .padding()
+                                    .transition(.scale)
                             }
                         }
-                        .animation(.easeInOut(duration: 2), value: animateViewsIn)
+                        .animation(
+                            .easeInOut(duration: animateViewsIn ? 2 : 0),
+                            value: animateViewsIn
+                        )
 
                         // MARK: Hints
                         HStack {
@@ -106,7 +110,11 @@ struct GamePlay: View {
                                         }
                                 }
                             }
-                            .animation(.easeInOut(duration: 1.5).delay(2), value: animateViewsIn)
+                            .animation(
+                                .easeInOut(duration: animateViewsIn ? 1.5 : 0)
+                                .delay(animateViewsIn ? 2 : 0),
+                                value: animateViewsIn
+                            )
 
                             Spacer()
 
@@ -155,7 +163,7 @@ struct GamePlay: View {
                                         }
                                 }
                             }
-                            .animation(.easeInOut(duration: 1.5).delay(2), value: animateViewsIn)
+                            .animation(.easeInOut(duration: animateViewsIn ? 1.5 : 0).delay(animateViewsIn ? 2 : 0), value: animateViewsIn)
 
                             Spacer()
                         }
@@ -205,7 +213,8 @@ struct GamePlay: View {
                                             }
                                         }
                                     }
-                                    .animation(.easeOut(duration: 1).delay(1.5),
+                                    .animation(.easeOut(duration: animateViewsIn ? 1 : 0)
+                                        .delay(animateViewsIn ? 1.5 : 0),
                                                value: animateViewsIn
                                     )
                                 } else { //wrong answer
@@ -242,7 +251,8 @@ struct GamePlay: View {
                                             .disabled(wrongAnswersTapped.contains(answer)) //they can't click twice
                                         }
                                     }
-                                    .animation(.easeOut(duration: 1).delay(1.5),
+                                    .animation(.easeOut(duration: animateViewsIn ? 1 : 0)
+                                        .delay(animateViewsIn ? 1.5 : 0),
                                                value: animateViewsIn
                                     )
                                 }
@@ -293,8 +303,9 @@ struct GamePlay: View {
 
                         }
                     }
-                    .animation(.easeOut(duration: 2).delay(1.5),
-                               value: tappedCorrectAnswer)
+                    .animation(.easeOut(duration: tappedCorrectAnswer ? 2 : 0)
+                                .delay(tappedCorrectAnswer ? 1.5 : 0),
+                                value: tappedCorrectAnswer)
 
                     Spacer()
 
@@ -333,7 +344,7 @@ struct GamePlay: View {
                             .font(.largeTitle)
                             .buttonStyle(.borderedProminent)
                             .tint(.blue.opacity(0.5))
-                          //  .transition(.offset(y: geo.size.height/2))
+                            .transition(.offset(y: geo.size.height/2))
                             .phaseAnimator([false, true]) { content, phase in
                                 content
                                     .scaleEffect(phase ? 1.2 : 1)
@@ -342,7 +353,8 @@ struct GamePlay: View {
                             }
                         }
                     }
-                    .animation(.easeOut(duration: 2.7).delay(2.7), value: tappedCorrectAnswer)
+                    .animation(.easeOut(duration: tappedCorrectAnswer ? 2.7 : 0)
+                        .delay(tappedCorrectAnswer ? 2.7 : 0), value: tappedCorrectAnswer)
 
                     Spacer()
                     Spacer()
