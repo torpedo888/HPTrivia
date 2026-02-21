@@ -14,6 +14,10 @@ class Store {
 
     private var updates: Task<Void, Never>? = nil
 
+    init() {
+        updates = watchForUpdates()
+    }
+
     //Load available products
     func loadProducts() async {
         do {
@@ -30,17 +34,17 @@ class Store {
             let result = try await product.purchase()
 
             switch result {
-            case .success(let verificationResult):
-                switch verificationResult {
-                case .unverified(let signedType, let verificationError):
-                    print("Purchase unverified. Signed type: \(signedType). Error: \(verificationError)")
-                case .verified(let signedType) :
-                    purchasedProducts.insert(product.id)
-                    await signedType.finish()
-                }
-            case .userCancelled: break
-            case .pending: break
-            @unknown default: break
+                case .success(let verificationResult):
+                    switch verificationResult {
+                    case .unverified(let signedType, let verificationError):
+                        print("Purchase unverified. Signed type: \(signedType). Error: \(verificationError)")
+                    case .verified(let signedType) :
+                        purchasedProducts.insert(product.id)
+                        await signedType.finish()
+                    }
+                case .userCancelled: break
+                case .pending: break
+                @unknown default: break
             }
         } catch {
             print("Error purchasing product: \(error)")
@@ -48,6 +52,31 @@ class Store {
     }
 
     // Check for purchased products
+    private func checkPurchased() async {
+        for product in products {
+            //check that are there any transaction data at all
+            guard let status = await product.currentEntitlement else { continue }
+
+            switch status {
+            case .unverified(let signType, let verificationError):
+                print("Unverified purchase. Signed type: \(signType). Error: \(verificationError)")
+            case .verified:
+                //verified but they ask for a refund:
+                if signedType.revocationDate == nil {
+                    purchasedProducts.insert(product.id)
+                } else {
+                    purchasedProducts.remove(product.id)
+                }
+            }
+        }
+    }
 
     // Connect with App Store to watch for purchase and transaction updates
+    private func watchForUpdates() -> Task<Void, Never> {
+        Task(priority: .background) {
+            for await _ in Transaction.updates {
+                await checkPurchased()
+            }
+        }
+    }
 }

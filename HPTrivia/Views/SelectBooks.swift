@@ -41,8 +41,12 @@ struct SelectBooks: View {
                 ScrollView {
                     LazyVGrid(columns: [GridItem(), GridItem()]){
                         ForEach(game.bookQuestions.books) {book in
-                            if book.status == .active {
+                            if book.status == .active (book.status == .locked &&
+                                                       store.purchasedProducts.contains(book.id)) {
                                 ActiveBook(book: book)
+                                    .task {
+                                        game.bookQuestions.changeStatus(of: book.id, to: .active)
+                                    }
                                 .onTapGesture {
                                     game.bookQuestions.changeStatus(of: book.id, to: .inactive)
                                 }
@@ -53,20 +57,22 @@ struct SelectBooks: View {
                                 }
                             } else {
                                 LockedBook(book: book)
-                                .onTapGesture {
-                                    showTempAlert.toggle()
+                                    .onTapGesture {
+                                        //4-rol indulnak a megvasarolhato konyvek,
+                                        //de az a tombben 0 indexrol indul ezert von ki 4-et
+                                        //ideiglenes megoldas csak
+                                        let product = store.products[book.id-4]
 
-                                    game.bookQuestions.changeStatus(of: book.id, to: .active)
-                                }
+                                        Task {
+                                            await store.purchase(product)
+                                        }
+                                    }
                             }
                         }
                     }
                     .padding()
                 }
                 .interactiveDismissDisabled()
-                .alert("You just purchased a new book!",
-                       isPresented: $showTempAlert) {
-                }
                 .task {
                    await store.loadProducts()
                 }
