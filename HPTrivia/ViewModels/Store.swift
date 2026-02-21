@@ -60,7 +60,7 @@ class Store {
             switch status {
             case .unverified(let signType, let verificationError):
                 print("Unverified purchase. Signed type: \(signType). Error: \(verificationError)")
-            case .verified:
+            case .verified(let signedType):
                 //verified but they ask for a refund:
                 if signedType.revocationDate == nil {
                     purchasedProducts.insert(product.id)

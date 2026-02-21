@@ -10,6 +10,9 @@ import Foundation
 class BookQuestions {
     var books: [Book] = []
 
+    let savePath = FileManager.default.urls(for: .documentDirectory, in:
+            .userDomainMask).first!.appending(path: "BookStatuses")
+
     init() {
         let decodedQuestions = decodedQuestions()
         let organizedQuestions = organizeQuestions(decodedQuestions)
@@ -54,6 +57,26 @@ class BookQuestions {
 
     func changeStatus(of id: Int, to status: BookStatus) {
         books[id-1].status = status
+    }
+
+    func saveStatus() {
+        do {
+            let jsonData = try JSONEncoder().encode(books)
+            try jsonData.write(to: savePath)
+        } catch {
+            print("Failed to save scores: \(error)")
+        }
+    }
+
+    func loadStatus() {
+        do {
+            let jsonData = try Data(contentsOf: savePath)
+            books = try JSONDecoder().decode([Book].self, from: jsonData)
+        } catch {
+            let decodedQuestions = decodedQuestions()
+            let organizedQuestions = organizeQuestions(decodedQuestions)
+            populateBooks(with: organizedQuestions)
+        }
     }
 }
 

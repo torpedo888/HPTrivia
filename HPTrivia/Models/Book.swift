@@ -5,13 +5,13 @@
 //  Created by Ferenc Batorligeti on 2026. 02. 17..
 //
 
-struct Book: Identifiable {
+struct Book: Codable, Identifiable {
     let id: Int
     let image: String
     let questions: [Question]
     var status: BookStatus
 }
 
-enum BookStatus {
+enum BookStatus : Codable {
     case active, inactive, locked
 }

@@ -84,6 +84,7 @@ struct SelectBooks: View {
                 }
 
                 Button("Done") {
+                    game.bookQuestions.saveStatus()
                     dismiss()
                 }
                 .font(.largeTitle)
@@ -94,7 +95,6 @@ struct SelectBooks: View {
             }
             .foregroundStyle(.black)
         }
-        .interactiveDismissDisabled(!activeBooks)
     }
 }
 
