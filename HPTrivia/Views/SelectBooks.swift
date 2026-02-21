@@ -13,6 +13,8 @@ struct SelectBooks: View {
 
     @State private var showTempAlert = false
 
+    private var store = Store()
+
     var activeBooks: Bool {
         for book in game.bookQuestions.books {
             if book.status == .active {
@@ -62,8 +64,13 @@ struct SelectBooks: View {
                     .padding()
                 }
                 .interactiveDismissDisabled()
-                .alert("You just purchased a new book!", isPresented: $showTempAlert) {
+                .alert("You just purchased a new book!",
+                       isPresented: $showTempAlert) {
                 }
+                .task {
+                   await store.loadProducts()
+                }
+
 
                 if !activeBooks {
                     Text("You must select at least 1 book.")
